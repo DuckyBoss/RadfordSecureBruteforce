@@ -113,7 +113,7 @@ let bruteForceLog = fs.createWriteStream('bruteForceLog.txt');
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    content: `Routine update:\nChallenge ID: ${challenge_id}\n\nIndex: ${i}\nString: ${str}\n${"-".repeat(10)}\n${((i / 65536) * 100).toFixed(3)}% Completed`
+                    content: `Routine update:\nChallenge ID: ${challenge_id}\n\nIndex: ${i}\nString: ${str}\n${"-".repeat(10)}\n${((i / 1_00000) * 100).toFixed(3)}% Completed`
                 })
             }));
         }
