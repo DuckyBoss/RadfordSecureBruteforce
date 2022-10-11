@@ -1,5 +1,5 @@
 node_modules
-output_logs
 bruteForceLog.txt
-botLogs.txt
 config.json
+envs
+logs

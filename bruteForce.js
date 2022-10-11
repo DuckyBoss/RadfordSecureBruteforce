@@ -61,7 +61,7 @@ let bruteForceLog = fs.createWriteStream('bruteForceLog.txt');
     /** Starting number - allows the process to be stopped and started again without repeating submissions */
     let initialNum = +process.argv[2] || 0;
 
-    for (let i = initialNum; i < 100_000; i++) {
+    for (let i = initialNum; i >= 0; i--) {
         let str = i.toString().padStart(5, "0");
         console.log(str);
 
@@ -113,13 +113,13 @@ let bruteForceLog = fs.createWriteStream('bruteForceLog.txt');
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    content: `Routine update:\nChallenge ID: ${challenge_id}\n\nIndex: ${i}\nString: ${str}\n${"-".repeat(10)}\n${((i / 1_00000) * 100).toFixed(3)}% Completed`
+                    content: `Routine update:\nChallenge ID: ${challenge_id}\n\nIndex: ${i}\nString: ${str}\n${"-".repeat(10)}\n${(((1_00000 - i) / 1_00000) * 100).toFixed(3)}% Completed`
                 })
             }));
         }
 
         // Repeat submission if it didn't go through
-        if (res === 'ratelimited') i--;
+        if (res === 'ratelimited') i++;
     }
     bruteForceLog.close();
 })();
