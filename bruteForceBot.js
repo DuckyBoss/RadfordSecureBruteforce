@@ -15,7 +15,10 @@ function initEnvRunner() {
    runner = child_process.spawn('node', ['run.js'], {stdio: 'pipe'});
    runner.stdout.pipe(fs.createWriteStream('logs/stdout_log.txt'));
    runner.stderr.pipe(fs.createWriteStream('logs/stderr_log.txt'));
-   runner.on('exit', () => initEnvRunner());
+   // runner.on('exit', () => initEnvRunner());
+   let str = `[${new Date().toISOString()}] Runner started with process ID ${runner.pid}`;
+   console.log(str);
+   botLogs.write(str + '\n');
 }
 initEnvRunner();
 
@@ -36,13 +39,20 @@ function startCtf(indexes) {
 }
 
 /**
- * @param {*} indexes 
+ * @param {string[]} indexes 
  */
 function endCtf(indexes) {
    runner.stdin.write('kill ' + indexes.join(' ') + '\n');
 }
 function endAllCtfs() {
    runner.stdin.write('killall\n');
+   // initEnvRunner();
+}
+
+function restartRunner() {
+   let str = `[${new Date().toISOString()}] Killing runner... result: ${runner?.kill()}`;
+   console.log(str);
+   botLogs.write(str + '\n');
    initEnvRunner();
 }
 
@@ -72,6 +82,10 @@ bot.on('messageCreate', (msg) => {
          case '*endall':
             endAllCtfs();
             msg.channel.createMessage('All CTF scripts ended and the list of scripts refreshed.');
+            break;
+         case '*restart':
+            restartRunner();
+            msg.channel.createMessage('Env runner has been restarted and all running CTF scripts have been terminated');
             break;
 
          case '*getenvs':
@@ -114,7 +128,7 @@ bot.on('messageCreate', (msg) => {
             break;
          }
          case '*help':
-            msg.channel.createMessage('Commands:\n`*start [...indexes]`\n`*end [...indexes]`\n`*endall`\n`*ctflogs|*ctf-logs`\n`*eval [...content]`\n`*update-config entryName jsonValue`\n`*update-ctf-config env entryName jsonValue`\n`*botlogs|*bot-logs`\n`*getenvs|*get-envs`\n`*ctfoutput|*ctf-output {stdout|stderr} env`');
+            msg.channel.createMessage('Commands:\n`*start [...indexes]`\n`*end [...indexes]`\n`*endall`\n`*restart`\n`*ctflogs|*ctf-logs env`\n`*eval [...content]`\n`*update-config entryName jsonValue`\n`*update-ctf-config env entryName jsonValue`\n`*botlogs|*bot-logs`\n`*getenvs|*get-envs`\n`*ctfoutput|*ctf-output {stdout|stderr} env`');
             break;
          case '*eval':
             if (msg.author.id !== '370287366834880512' && msg.author.id !== '600010784453558331') break;

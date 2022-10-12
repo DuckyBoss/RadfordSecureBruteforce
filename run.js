@@ -4,7 +4,7 @@ const readline = require('readline');
 
 /**
  * @param {string} env 
- * @param {index} i 
+ * @param {number} i 
  */
 function procStart(env, i) {
     let [envInd, start, asIndStr] = env.split(':');
@@ -17,17 +17,19 @@ function procStart(env, i) {
     let args = ['bruteForce.js'];
     if (start) args.push(start);
     console.log(`Starting env ${envInd}`, args);
-    let proc = child_process.spawn('node', args, {cwd: path, stdio: 'pipe', shell: true});
+    let proc = child_process.spawn('node', args, {cwd: path, stdio: 'pipe'});
     proc.on('exit', () => {
         console.log(`[${new Date().toISOString()}] Process ${i} (started with ${env}) ended`);
-        if (procList.every(v => !v || v.killed)) process.exit(0);
+        // if (procList.every(v => !v || v.killed)) process.exit(0);
     });
     proc.stdout.pipe(fs.createWriteStream(`${path}/stdout.txt`));
     proc.stderr.pipe(fs.createWriteStream(`${path}/stderr.txt`));
     procList[i] = proc;
+    console.log(`Env ${envInd} started with process ID ${proc.pid}`);
 }
 
 let envs = process.argv.slice(2);
+/** @type {child_process.ChildProcessWithoutNullStreams[]} */
 let procList = [];
 envs.forEach(procStart);
 
@@ -38,9 +40,9 @@ interface.on('line', inp => {
         case 'kill':
             let killList = indexes.map(v => parseInt(v)).filter(v => Number.isSafeInteger(v) && v >= 0);
             for (let ind of killList) {
-                console.log(ind);
+                console.log(`Killing ${ind}:`);
                 try {
-                    procList[ind].kill();
+                    console.log(procList[ind].kill());
                 } catch (err) {
                     console.error(err);
                 }
@@ -48,7 +50,8 @@ interface.on('line', inp => {
             break;
         case 'start':
             // procList.push(...indexes.map((v, i) => procStart(v, i + procList.length)));
-            indexes.forEach((v, i) => procStart(v, i + procList.length));
+            let len = procList.length;
+            indexes.forEach((v, i) => procStart(v, i + len));
             break;
         case 'killall':
             procList.forEach(v => {
@@ -60,4 +63,3 @@ interface.on('line', inp => {
             break;
     }
 });
-
